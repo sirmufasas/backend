@@ -1,5 +1,5 @@
 {
-  "name": "mufasa",
+  "name": "backend",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -7,20 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-<<<<<<< HEAD
-    "dotenv": "^16.4.5",
-    "np2": "^1.0.2"
-=======
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "mongodb": "^6.9.0",
     "nodemon": "^3.1.7"
->>>>>>> a9ae82b3a966346779e7309a3e324ff2d9a34c82
   }
 }
