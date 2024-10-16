@@ -113,7 +113,7 @@ app.get('/orders', async (req, res) => { // work
 
 
 
-app.listen(PORT, "0.0.0.0", () => {
-  connectToMongo();
+app.listen(PORT, "0.0.0.0", async  () => {
+ await connectToMongo();
   console.log(`Server is running on http://localhost:${PORT}`);
 });
