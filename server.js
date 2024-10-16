@@ -76,6 +76,9 @@ app.get('/getproducts', async (req, res) => {
     res.status(500).json({ message: 'Error fetching products' });
   }
 });
+app.get('/test', async (req, res) =>{
+  return "tested"
+})
 app.get('/customers', async (req, res) => {
     try {
         // await client.connect();
@@ -86,7 +89,7 @@ app.get('/customers', async (req, res) => {
         if (users.length > 0){
           return res.status(200).send({message:users})
         }
-        return res.status(404).send({message:"users not found"})
+        return res.status(404).send({message: 'users not found' })
         res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
