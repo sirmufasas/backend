@@ -78,11 +78,15 @@ app.get('/getproducts', async (req, res) => {
 });
 app.get('/customers', async (req, res) => {
     try {
-        await client.connect();
-        const database = client.db('Stationery-server'); // Replace with your database name
-        const usersCollection = database.collection('User-data'); // Replace with your collection name
+        // await client.connect();
+        // const database = client.db('Stationery-server'); // Replace with your database name
+        const usersCollection = db.collection('User-data'); // Replace with your collection name
 
-        const users = await usersCollection.find().toArray();
+        const users = await usersCollection.find([]).toArray();
+        if [users.length > 0]{
+          return res.status(200).send({message:users})
+        }
+        return res.status(404).send({message:"users not found"})
         res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
