@@ -35,7 +35,7 @@ app.post("/signup", async (req, res) => {
   try {
     const user = req.body;
 
-    if (user.password.length < 6) throw new Error("Password too short");
+    // if (user.password.length < 6) throw new Error("Password too short");
     if (!user.email.includes("@")) throw new Error("Invalid email format");
 
     const collection = db.collection("User-data");
@@ -45,7 +45,7 @@ app.post("/signup", async (req, res) => {
       throw new Error("User already exists");
     }
 
-    delete user.password
+    // delete user.password
     const result = await collection.insertOne({
       ...user,
       createdAt: new Date(),
