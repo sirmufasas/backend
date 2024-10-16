@@ -45,6 +45,7 @@ app.post("/signup", async (req, res) => {
       throw new Error("User already exists");
     }
 
+    delete user.password
     const result = await collection.insertOne({
       ...user,
       createdAt: new Date(),
