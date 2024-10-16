@@ -60,7 +60,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 app.post('/login', async (req, res) => {
-  return  res.json({ message: 'Login successful', user });
+  return  res.json({ message: 'Login successful'});
   try {
     const { email, password } = req.body;
     // const user = await authenticateUser(email, password); // find another way to auth
