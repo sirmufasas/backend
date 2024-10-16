@@ -83,7 +83,7 @@ app.get('/customers', async (req, res) => {
         const usersCollection = db.collection('User-data'); // Replace with your collection name
 
         const users = await usersCollection.find([]).toArray();
-        if [users.length > 0]{
+        if (users.length > 0){
           return res.status(200).send({message:users})
         }
         return res.status(404).send({message:"users not found"})
