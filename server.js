@@ -36,7 +36,7 @@ app.post("/signup", async (req, res) => {
     const user = req.body;
 
     // if (user.password.length < 6) throw new Error("Password too short");
-    if (!user.email.includes("@")) throw new Error("Invalid email format");
+    // if (!user.email.includes("@")) throw new Error("Invalid email format");
 
     const collection = db.collection("User-data");
 
