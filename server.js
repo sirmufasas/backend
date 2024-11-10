@@ -1,51 +1,54 @@
-require("dotenv").config();
-const express = require("express");
-const { MongoClient } = require("mongodb");
+import dotenv from 'dotenv';
+import express from 'express';
+import { MongoClient } from 'mongodb';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
-const cors = require("cors")
-const bodyParser = require('body-parser');
-const uri = process.env.MDB_CONNECTION_STRING
+const uri = process.env.MDB_CONNECTION_STRING;
 
 app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
 
-
-let db; // Global variable to hold the database connection
+let db;
 let client;
-// Connect to MongoDB and set up the database
-async function  connectToMongo() {
-  client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+
+async function connectToMongo() {
+  client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
   await client.connect()
-      .then(() => {
-          db = client.db("Stationery-server"); // Database name
-          console.log('Connected to MongoDB');
-      })
-      .catch(error => {
-          console.log('Failed to connect to MongoDB:', error.message);
-          process.exit(1); // Exit the process if unable to connect to MongoDB
-      });
+    .then(() => {
+      db = client.db("Stationery-server"); // Database name
+      console.log("Connected to MongoDB");
+    })
+    .catch(error => {
+      console.log("Failed to connect to MongoDB:", error.message);
+      process.exit(1); // Exit the process if unable to connect to MongoDB
+    });
 }
 
-// Invoke the function
-
-// API endpoint for user signup
+// Updated `/signup` endpoint
 app.post("/signup", async (req, res) => {
   try {
     const user = req.body;
 
-    // if (user.password.length < 6) throw new Error("Password too short");
-    // if (!user.email.includes("@")) throw new Error("Invalid email format");
-
-    const collection = db.collection("User-data");
-
-    const existingUser = await collection.findOne({ email: user.email });
-    if (existingUser) {
-      throw new Error("User already exists");
+    // Validate email and password
+    if (!user.email || !user.email.includes("@")) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+    if (!user.password || user.password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
-    // delete user.password
+    const collection = db.collection("User-data");
+    const existingUser = await collection.findOne({ email: user.email });
+
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
     const result = await collection.insertOne({
       ...user,
       createdAt: new Date(),
@@ -56,66 +59,71 @@ app.post("/signup", async (req, res) => {
       userId: result.insertedId,
     });
   } catch (error) {
-    console.error("Error inserting user: ", error);
-    res.status(500).json({ message: error.message || `Internal Server Error: ${error}`});
+    res.status(500).json({ message: `Error inserting user: ${error.message}` });
   }
 });
-app.post('/login', async (req, res) => {
-  return  res.json({ message: 'Login successful'});
+
+// Enhanced `/login` endpoint
+app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    // const user = await authenticateUser(email, password); // find another way to auth
-    res.json({ message: 'Login successful', user });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    const collection = db.collection("User-data");
+    
+    // Check if user exists
+    const user = await collection.findOne({ email: email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if password matches
+    if (user.password !== password) {
+      return res.status(400).json({ message: "Invalid password" });
+    }
+
+    res.json({ message: "Login successful", user });
+  } catch (error) {
+    res.status(500).json({ message: `Error logging in: ${error.message}` });
   }
 });
-app.get('/getproducts', async (req, res) => {
+
+// Updated `/getproducts` endpoint
+app.get("/getproducts", async (req, res) => {
   try {
-    const products = await db.collection('Product-data').find({}).toArray();
+    const products = await db.collection("Product-data").find({}).toArray();
     res.json(products);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching products' });
+    res.status(500).json({ message: "Error fetching products" });
   }
 });
-app.get('/test', async (req, res) =>{
-  return "tested"
-})
-app.get('/customers', async (req, res) => {
-    try {
-        // await client.connect();
-        // const database = client.db('Stationery-server'); // Replace with your database name
-        const usersCollection = db.collection('User-data'); // Replace with your collection name
 
-        const users = await usersCollection.find({}).toArray();
-        if (users.length > 0){
-          return res.status(200).send({message:users})
-        }
-        return res.status(404).send({message: 'users not found' })
-        res.json(users);
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    } 
+// Customers Endpoint
+app.get("/customers", async (req, res) => {
+  try {
+    const usersCollection = db.collection("User-data");
+    const users = await usersCollection.find({}).toArray();
+
+    if (users.length > 0) {
+      return res.status(200).send({ message: users });
+    }
+    return res.status(404).send({ message: "No users found" });
+  } catch (error) {
+    res.status(500).json({ message: `Error fetching users: ${error.message}` });
+  }
 });
 
-app.get('/orders', async (req, res) => { // work
-    try {
-        await client.connect();
-        const database = client.db('Stationery-server'); // Replace with your database name
-        const orderCollection = database.collection('Order-data'); // Replace with your collection name
-
-        const orderItems = await orderCollection.find().toArray();
-        res.json(orderItems);
-    } catch (error) {
-        console.error('Error fetching cart items:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    } 
+// Orders Endpoint
+app.get("/orders", async (req, res) => {
+  try {
+    const orderCollection = db.collection("Order-data");
+    const orders = await orderCollection.find({}).toArray();
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: `Error fetching orders: ${error.message}` });
+  }
 });
 
-
-
-app.listen(PORT, "0.0.0.0", async  () => {
- await connectToMongo();
-  console.log(`Server is running on http://localhost:${PORT}`);
+// Start the server and connect to MongoDB
+app.listen(PORT, "0.0.0.0", async () => {
+  await connectToMongo();
+  console.log(`Server is running on http://44.196.3.200:${PORT}`);
 });
