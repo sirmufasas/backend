@@ -5,7 +5,7 @@ import chai from "chai";
 chai.use(chaiHttp);
 const server = "http://44.196.3.200:8000";
 
-// GET /users
+
 describe("GET /users", () => {
   it("should return user data", function (done) {
     chai
