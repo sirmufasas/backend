@@ -3,9 +3,8 @@ import chaiHttp from "chai-http";
 import chai from "chai";
 
 chai.use(chaiHttp);
-const server = "http://44.196.3.200:8000";
-
-
+const server = "http://44.196.3.200:8000"; 
+// get
 describe("GET /users", () => {
   it("should return user data", function (done) {
     chai
